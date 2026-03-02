@@ -3,10 +3,12 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <ctime>
 
 using namespace std;
 
 const string FILENAME = "movies.txt";
+const int EARLIEST = 1888; // the earliest known surviving movie was filmed in 1888
 
 class Movie {
     string writer;
@@ -15,14 +17,24 @@ class Movie {
 
     public:
         // setters and getters
-        void setYear(int year) { // TODO data validation
-            this->year = year;
+        void setYear(int year) {
+            // check whether it is a valid year
+            time_t now = time(0);
+            tm* local = localtime(&now);
+            int currYear = local->tm_year + 1900;
+            if (EARLIEST <= year && year <= currYear)
+                this->year = year; // input validation as an int happens when the file is read
+            else {
+                cout << "Error: invalid year." << endl;
+                this -> year = -1;
+                // since input is from a file, rather than end the program, store an error value
+            }
         }
         void setWriter(string writer) { this->writer = writer; } // inline function to set the screenwriter's name
         void setTitle(string title) { this->title = title; } // inline function to set the movie title
-        int getYear() { return year; } // inline function to get the movie's release year
-        string getWriter() { return writer; } // inline function to get the screenwriter's name
-        string getTitle() { return title; } // inline function to get the movie's title
+        int getYear() const { return year; } // inline function to get the movie's release year
+        string getWriter() const { return writer; } // inline function to get the screenwriter's name
+        string getTitle() const { return title; } // inline function to get the movie's title
 
         // other function
         void print() { // display the info about the movie
@@ -55,20 +67,21 @@ int main() {
     while(!moviesFile.eof()) {
         Movie tempMovie; // this will store the values then a copy will be added to the vector
         
-        moviesFile >> tempInput; // read the first line of this movie, the title
+        getline(moviesFile, tempInput); // read the first line of this movie, the title
         tempMovie.setTitle(tempInput);
         
-        moviesFile >> tempInput; // read the second line of this movie, the year
+        getline(moviesFile, tempInput); // read the second line of this movie, the year
         try {
             tempInt = stoi(tempInput);
         }
         catch(const exception& e) {
+            cout << "Error: invalid year." << endl;
             moviesFile.clear(); // skip this line
             tempInt = -1; // rather than ending the program, put this in to indicate there wasn't a valid year            
         }
         tempMovie.setYear(tempInt);
 
-        moviesFile >> tempInput; // read the third line of this movie, the writer's name
+        getline(moviesFile, tempInput); // read the third line of this movie, the writer's name
         tempMovie.setWriter(tempInput);
 
         movies.push_back(tempMovie); // store a copy of this movie in the vector
