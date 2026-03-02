@@ -8,7 +8,8 @@
 using namespace std;
 
 const string FILENAME = "movies.txt";
-const int EARLIEST = 1888; // the earliest known surviving movie was filmed in 1888
+const int EARLIEST = 1888; 
+// the earliest known surviving movie was filmed in 1888, per Wikipedia
 
 class Movie {
     string writer;
@@ -19,11 +20,12 @@ class Movie {
         // setters and getters
         void setYear(int year) {
             // check whether it is a valid year
+            //   (checking whether it's an int happens when the file is read)
             time_t now = time(0);
             tm* local = localtime(&now);
             int currYear = local->tm_year + 1900;
             if (EARLIEST <= year && year <= currYear)
-                this->year = year; // input validation as an int happens when the file is read
+                this->year = year;
             else {
                 cout << "Error: invalid year." << endl;
                 this -> year = -1;
@@ -39,8 +41,8 @@ class Movie {
         // other function
         void print() { // display the info about the movie
             cout << "Movie: " << title << endl;
-            cout << "    Year released: " << year << endl;
-            cout << "    Screenwriter: " << writer << endl;
+            cout << "   Year released: " << year << endl;
+            cout << "   Screenwriter: " << writer << endl;
         }
 };
 
@@ -55,7 +57,7 @@ int main() {
     }
     catch(invalid_argument& e) {
         cout << "Error: " << e.what();
-        return -1;
+        return -1; // end the program if it can't open the file
     }
 
     vector<Movie> movies; // empty vector to store movies from the file
@@ -63,7 +65,6 @@ int main() {
     // read each line from the file and store the values in a Movie object
     string tempInput; // for getting each line from the file
     int tempInt; // for validating input
-    bool validInput = false;
     while(!moviesFile.eof()) {
         Movie tempMovie; // this will store the values then a copy will be added to the vector
         
@@ -77,7 +78,7 @@ int main() {
         catch(const exception& e) {
             cout << "Error: invalid year." << endl;
             moviesFile.clear(); // skip this line
-            tempInt = -1; // rather than ending the program, put this in to indicate there wasn't a valid year            
+            tempInt = -1; // rather than ending the program, put -1 in to indicate there wasn't a valid year
         }
         tempMovie.setYear(tempInt);
 
